@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+#^syntax detection
+
+site 'http://community.opscode.com/api/v1'
+
+cookbook 'java'
+cookbook 'google-chrome'
+cookbook 'rvm', :git => 'https://github.com/fnichol/chef-rvm'
+cookbook 'dropbox'
+cookbook 'nodejs'
+cookbook 'virtualbox'
+cookbook 'memcached'
+cookbook 'redis'
+cookbook 'couchdb'
+cookbook 'mongodb'
