@@ -27,7 +27,8 @@ package 'vim-gtk'
 
 # mysql
 package 'mysql-server'
-package 'libmysql-dev'
+package 'libmysqlclient16-dev'
+package 'libmysqlclient16'
 
 # sqlite3
 package 'sqlite3'
