@@ -9,6 +9,13 @@ package 'xvfb'
 package 'libqtwebkit-dev'
 package 'libqt4-dev'
 
+# this is for guard
+package 'libnotify-bin'
+package 'libgtkmm-2.4-1c2a'
+
+# paperclip
+package 'imagemagick'
+
 # ff
 package 'firefox'
 
