@@ -59,6 +59,7 @@ package 'tree'
 package 'htop'
 package 'bmon'
 package 'yakuake'
+package 'aptitude'
 
 package 'skype'
 
