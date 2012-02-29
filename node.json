@@ -1,5 +1,5 @@
 {
-  "run_list": ["role[psyho-desktop"],
+  "run_list": ["role[psyho-desktop]"],
 
   "rvm": {
     "user_installs": [{
