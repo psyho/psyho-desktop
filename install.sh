@@ -1,3 +1,3 @@
-which ruby || apt-get -y install ruby1.9.1
+apt-get install -y ruby1.9.1 ruby1.9.1-dev libopenssl-ruby rdoc ri irb build-essential wget ssl-cert curl
 which chef-solo || gem1.9.1 install chef
 chef-solo -c config/solo.rb -j node.json
