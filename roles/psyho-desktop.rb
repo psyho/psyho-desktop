@@ -9,7 +9,6 @@ run_list *%w{
   recipe[nodejs::npm]
   recipe[virtualbox]
   recipe[memcached]
-  recipe[redis]
   recipe[couchdb]
   recipe[mongodb]
   recipe[system-packages]
