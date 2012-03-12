@@ -23,7 +23,20 @@ package 'firefox'
 package 'texlive-full'
 
 # vim
+package 'vim'
 package 'vim-gtk'
+
+# vim dependencies
+package 'ttf-bitstream-vera'
+package 'exuberant-ctags'
+package 'yajl-tools'
+
+package 'ack-grep'
+
+link '/usr/local/bin/ack' do
+  to '/usr/bin/ack-grep'
+  link_type :symbolic
+end
 
 # mysql
 package 'mysql-server'
@@ -47,10 +60,9 @@ package 'vuze'
 
 # wine
 package 'wine'
-package 'wine-tricks'
 
 # ms fonts
-package 'mstcorefonts'
+package 'ttf-mscorefonts-installer'
 
 # total commander
 package 'mc'
