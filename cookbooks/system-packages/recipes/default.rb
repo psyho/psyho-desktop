@@ -84,3 +84,6 @@ package 'aptitude'
 package 'skype'
 
 package 'gimp'
+
+# old gcc
+package 'gcc-4.4'
