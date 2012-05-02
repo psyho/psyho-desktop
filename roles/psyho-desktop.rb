@@ -1,7 +1,6 @@
 description 'Psyhos desktop config'
 
 run_list *%w{
-  recipe[java]
   recipe[google-chrome]
   recipe[rvm::user]
   recipe[dropbox]
