@@ -66,7 +66,7 @@ package 'ttf-mscorefonts-installer'
 
 # total commander
 package 'mc'
-package 'krusader'
+#package 'krusader'
 
 # download web stuff
 package 'curl'
@@ -86,4 +86,4 @@ package 'skype'
 package 'gimp'
 
 # old gcc
-package 'gcc-4.4'
+package 'gcc-4.2'
