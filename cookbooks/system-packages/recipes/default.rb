@@ -40,8 +40,8 @@ end
 
 # mysql
 package 'mysql-server'
-package 'libmysqlclient16-dev'
-package 'libmysqlclient16'
+package 'libmysqlclient-dev'
+package 'libmysqlclient18'
 
 # sqlite3
 package 'sqlite3'
@@ -86,4 +86,4 @@ package 'skype'
 package 'gimp'
 
 # old gcc
-package 'gcc-4.2'
+package 'gcc-4.4'
