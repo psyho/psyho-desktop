@@ -80,7 +80,7 @@ package 'zsh'
 package 'tree'
 package 'htop'
 package 'bmon'
-package 'yakuake'
+package 'guake'
 package 'aptitude'
 
 package 'skype'
