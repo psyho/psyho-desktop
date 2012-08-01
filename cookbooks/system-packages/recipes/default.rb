@@ -47,6 +47,8 @@ package 'libmysqlclient18'
 package 'sqlite3'
 package 'libsqlite3-dev'
 
+package 'redis-server'
+
 # ssh server
 package 'openssh-server'
 
