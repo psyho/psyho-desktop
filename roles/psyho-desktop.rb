@@ -2,9 +2,9 @@ description 'Psyhos desktop config'
 
 run_list *%w{
   recipe[google-chrome]
-  recipe[rvm::user]
+  recipe[system-packages]
   recipe[nodejs]
   recipe[nodejs::npm]
   recipe[virtualbox]
-  recipe[system-packages]
+  recipe[rvm::user]
 }
