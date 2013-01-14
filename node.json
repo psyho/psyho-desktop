@@ -11,6 +11,9 @@
   "nodejs": {
     "version": "0.8.17"
   },
+  "virtualbox": {
+    "version": "4.2"
+  },
   "java": {
     "install_flavor": "oracle"
   }
