@@ -20,8 +20,8 @@
 #
 
 # ruby that will get installed and set to `rvm use default`.
-default['rvm']['default_ruby']      = "ruby-1.9.3-p125"
-default['rvm']['user_default_ruby'] = "ruby-1.9.3-p125"
+default['rvm']['default_ruby']      = "ruby-1.9.3-p194"
+default['rvm']['user_default_ruby'] = "ruby-1.9.3-p194"
 
 # list of additional rubies that will be installed
 default['rvm']['rubies']      = []
@@ -45,7 +45,7 @@ default['rvm']['rvmrc']         = Hash.new
 default['rvm']['user_installs'] = []
 
 # system-wide installer options
-default['rvm']['installer_url'] = "https://raw.github.com/wayneeseguin/rvm/master/binscripts/rvm-installer"
+default['rvm']['installer_url'] = "https://get.rvm.io"
 default['rvm']['branch']  = "stable"
 default['rvm']['version'] = "head"
 default['rvm']['upgrade'] = "none"
@@ -63,13 +63,13 @@ default['rvm']['install_rubies']      = "true"
 default['rvm']['user_install_rubies'] = "true"
 
 case platform
-when "redhat","centos","fedora", "amazon"
+when "redhat","centos","fedora","scientific","amazon"
   node.set['rvm']['install_pkgs']   = %w{sed grep tar gzip bzip2 bash curl git}
   default['rvm']['user_home_root']  = '/home'
 when "debian","ubuntu","suse"
   node.set['rvm']['install_pkgs']   = %w{sed grep tar gzip bzip2 bash curl git-core}
   default['rvm']['user_home_root']  = '/home'
-when "mac_os_x"
+when "mac_os_x", "mac_os_x_server"
   node.set['rvm']['install_pkgs']   = %w{git}
   default['rvm']['user_home_root']  = '/Users'
 end

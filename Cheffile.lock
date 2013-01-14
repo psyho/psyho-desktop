@@ -24,9 +24,9 @@ SITE
 GIT
   remote: https://github.com/fnichol/chef-rvm
   ref: master
-  sha: 6f9fca9bd9f54dea2353618cc2e086ff007734ac
+  sha: 24ecbb02890a64e58fd994a8b66991f44d664799
   specs:
-    rvm (0.8.7)
+    rvm (0.9.1)
 
 DEPENDENCIES
   couchdb (>= 0)

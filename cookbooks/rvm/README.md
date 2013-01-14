@@ -1,4 +1,4 @@
-# <a name="title"></a> chef-rvm
+# <a name="title"></a> chef-rvm [![Build Status](https://secure.travis-ci.org/fnichol/chef-rvm.png?branch=master)](http://travis-ci.org/fnichol/chef-rvm)
 
 ## <a name="description"></a> Description
 
@@ -20,7 +20,7 @@ development), include `recipe[rvm::user]` in your run_list and add a user
 hash to the `user_installs` attribute list. For example:
 
     node['rvm']['user_installs'] = [
-      { 'user'          => 'wigglebottom'
+      { 'user'          => 'wigglebottom',
         'default_ruby'  => 'rbx',
         'rubies'        => ['1.9.2', '1.8.7']
       }
@@ -80,9 +80,11 @@ the recipes and LWRPs run on these platforms without error:
 * ubuntu (10.04/10.10/11.04)
 * debian (6.0)
 * mac_os_x (10.6/10.7)
+* mac_os_x_server
 * suse (openSUSE, SLES)
 * centos
 * amazon (2011.09)
+* scientific
 * redhat
 * fedora
 
@@ -101,18 +103,18 @@ this cookbook. All the methods listed below assume a tagged version release
 is the target, but omit the tags to get the head of development. A valid
 Chef repository structure like the [Opscode repo][chef_repo] is also assumed.
 
-### <a name="installation-librarian"></a> Using Librarian
+### <a name="installation-librarian"></a> Using Librarian-Chef
 
-The [Librarian][librarian] gem aims to be Bundler for your Chef cookbooks.
-Include a reference to the cookbook in a **Cheffile** and run
-`librarian-chef install`. To install with Librarian:
+[Librarian-Chef][librarian] is a bundler for your Chef cookbooks.
+Include a reference to the cookbook in a [Cheffile][cheffile] and run
+`librarian-chef install`. To install Librarian-Chef:
 
     gem install librarian
     cd chef-repo
     librarian-chef init
     cat >> Cheffile <<END_OF_CHEFFILE
     cookbook 'rvm',
-      :git => 'git://github.com/fnichol/chef-rvm.git', :ref => 'v0.8.6'
+      :git => 'git://github.com/fnichol/chef-rvm.git', :ref => 'v0.9.0'
     END_OF_CHEFFILE
     librarian-chef install
 
@@ -124,7 +126,7 @@ plugin:
 
     gem install knife-github-cookbooks
     cd chef-repo
-    knife cookbook github install fnichol/chef-rvm/v0.8.6
+    knife cookbook github install fnichol/chef-rvm/v0.9.0
 
 ### <a name="installation-gitsubmodule"></a> As a Git Submodule
 
@@ -143,7 +145,7 @@ If the cookbook needs to downloaded temporarily just to be uploaded to a Chef
 Server or Opscode Hosted Chef, then a tarball installation might fit the bill:
 
     cd chef-repo/cookbooks
-    curl -Ls https://github.com/fnichol/chef-rvm/tarball/v0.8.6 | tar xfz - && \
+    curl -Ls https://github.com/fnichol/chef-rvm/tarball/v0.9.0 | tar xfz - && \
       mv fnichol-chef-rvm-* rvm
 
 ### <a name="installation-platform"></a> From the Opscode Community Platform
@@ -226,7 +228,7 @@ The default Ruby for RVM installed system-wide. If the RVM Ruby is not
 installed, it will be built as a pre-requisite. The value can also contain a
 gemset in the form of `"ruby-1.8.7-p352@awesome"`.
 
-The default is `"ruby-1.9.3-p125"`. To disable a default Ruby from being
+The default is `"ruby-1.9.3-p194"`. To disable a default Ruby from being
 set, use an empty string (`""`) or a value of `"system"`.
 
 ### <a name="attributes-user-default-ruby"></a> user_default_ruby
@@ -235,16 +237,24 @@ The default Ruby for RVMs installed per-user when not explicitly set for that
 user. If the RVM Ruby is not installed, it will be built as a pre-requisite.
 The value can also contain a gemset in the form of `"ruby-1.8.7-p352@awesome"`.
 
-The default is `"ruby-1.9.3-p125"`. To disable a default Ruby from being
+The default is `"ruby-1.9.3-p194"`. To disable a default Ruby from being
 set, use an empty string (`""`) or a value of `"system"`.
 
 ### <a name="attributes-rubies"></a> rubies
 
 A list of additional RVM system-wide Rubies to be built and installed. This
 list does not need to necessarily contain your default Ruby as the
-`rvm_default_ruby` resource will take care of installing itself. For example:
+`rvm_default_ruby` resource will take care of installing itself. You may also
+include patch info. For example:
 
-    node['rvm']['rubies'] = [ "ree-1.8.7", "jruby" ]
+    node['rvm']['rubies'] = [
+      "ree-1.8.7",
+      "jruby",
+      {
+        :version => '1.9.3-p125-perf',
+        :patch => "falcon"
+      }
+    ]
 
 The default is an empty array: `[]`.
 
@@ -273,6 +283,9 @@ The default puts bundler and rake in each Ruby:
       { 'name'    => 'bundler' },
       { 'name'    => 'rake',
         'version' => '0.9.2'
+      },
+      { 'name'    => 'rubygems-bundler',
+        'action'  => 'remove'
       }
     ]
 
@@ -290,6 +303,9 @@ The default puts bundler and rake in each Ruby:
       { 'name'    => 'bundler' },
       { 'name'    => 'rake',
         'version' => '0.9.2'
+      },
+      { 'name'    => 'rubygems-bundler',
+        'action'  => 'remove'
       }
     ]
 
@@ -355,13 +371,23 @@ The hash keys correspond to the default/system equivalents. For example:
           { 'name'    => 'bundler',
             'version' => '1.1.pre.7'
           },
-          { 'name'    => 'rake' }
+          { 'name'    => 'rake' },
+          { 'name'    => 'rubygems-bundler',
+            'action'  => 'remove'
+          }
         ]
       },
       { 'user'          => 'jenkins',
         'version'       => '1.7.0',
         'default_ruby'  => 'jruby-1.6.3',
-        'rubies'        => ['1.8.7', '1.9.2', 'ree', 'rbx'],
+        'rubies' => [
+          "ree-1.8.7",
+          "jruby",
+          {
+            :version => '1.9.3-p125-perf',
+            :patch => "falcon"
+          }
+        ],
         'rvmrc'         => {
           'rvm_project_rvmrc'             => 1,
           'rvm_gemset_create_on_use_flag' => 1,
@@ -373,6 +399,9 @@ The hash keys correspond to the default/system equivalents. For example:
           },
           { 'name'    => 'rake',
             'version' => '0.8.7'
+          },
+          { 'name'    => 'rubygems-bundler',
+            'action'  => 'remove'
           }
         ]
       }
@@ -392,33 +421,38 @@ A specific git branch to use when installing system-wide. For example:
 
     node['rvm']['branch'] = "crazy"
 
-The default is `nil` which corresponds to the master branch.
+The default is `"stable"` which corresponds to the stable release branch.
 
 ### <a name="attributes-version"></a> version
 
-A specific tagged version to use when installing system-wide. This value is
-passed directly to the `rvm-installer` script and current valid values are:
-`"head"` (the default, last git commit), `"latest"` (last tagged release
-version) and a specific tagged version of the form `"1.2.3"`. You may want
-to use a specific version of RVM to prevent differences in deployment from
-one day to the next (RVM head moves pretty darn quickly):
+A specific tagged version or head of a branch to use when installing
+system-wide. This value is passed directly to the `rvm-installer` script and
+current valid values are:
 
-    node['rvm']['version'] = "1.7.0"
+* `"head"` - the default, last git commit on a branch
+* a specific tagged version of the form `"1.2.3"`.
 
-The default is `nil`, which corresponds to RVM `"head"`.
+You may want to use a specific version of RVM to prevent differences in
+deployment from one day to the next (RVM head moves pretty darn quickly).
+
+**Note** that if a version number is used, then `"none"` should be the value
+of the `branch` attribute. For example:
+
+    node['rvm']['version'] = "1.13.4"
+    node['rvm']['branch']  = "none"
+
+The default is `"head"`.
 
 ### <a name="attributes-upgrade"></a> upgrade
 
 Determines how to handle installing updates to the RVM framework system-wide.
-There are currently 3 valid values:
+The value of this string is passed to `rvm get`. The possible values include:
 
 * `"none"`, `false`, or `nil`: will not update RVM and leave it in its
   current state.
-* `"latest"`: runs `rvm get latest` which downloads and installs the latest
-  *"stable"* RVM release listed by
-  [https://rvm.beginrescueend.com/releases/stable-version.txt][stable].
-* `"head"`: runs the infamous `rvm get head` which clones (via git) and
-  installs the latest RVM repository HEAD.
+* Any other value is passed to `rvm get` as described on the
+  [upgrading][rvm_upgrading] page. For example: `"latest"`, `"stable"`,
+  and `"branch mpapis/shoes"`.
 
 The default is `"none"`.
 
@@ -1433,6 +1467,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 [chef_repo]:            https://github.com/opscode/chef-repo
+[cheffile]:             https://github.com/applicationsonline/librarian/blob/master/lib/librarian/chef/templates/Cheffile
 [compilation]:          http://wiki.opscode.com/display/chef/Evaluate+and+Run+Resources+at+Compile+Time
 [dragons]:              http://en.wikipedia.org/wiki/Here_be_dragons
 [gem_package]:          http://wiki.opscode.com/display/chef/Resources#Resources-Package
@@ -1445,15 +1480,15 @@ limitations under the License.
 [librarian]:            https://github.com/applicationsonline/librarian#readme
 [lwrp]:                 http://wiki.opscode.com/display/chef/Lightweight+Resources+and+Providers+%28LWRP%29
 [package_resource]:     http://wiki.opscode.com/display/chef/Resources#Resources-Package
-[rvm]:                  http://rvm.beginrescueend.com
-[rvm_create_gemset]:    http://rvm.beginrescueend.com/gemsets/creating/
-[rvm_delete_gemset]:    http://rvm.beginrescueend.com/gemsets/deleting/
-[rvm_empty_gemset]:     http://rvm.beginrescueend.com/gemsets/emptying/
-[rvm_default]:          http://rvm.beginrescueend.com/rubies/default/
-[rvm_gemsets]:          http://rvm.beginrescueend.com/gemsets/
-[rvm_install]:          http://rvm.beginrescueend.com/rubies/installing/
-[rvm_remove]:           http://rvm.beginrescueend.com/rubies/removing/
-[rvm_stable]:           https://rvm.beginrescueend.com/releases/stable-version.txt
+[rvm]:                  https://rvm.io
+[rvm_create_gemset]:    https://rvm.io/gemsets/creating/
+[rvm_delete_gemset]:    https://rvm.io/gemsets/deleting/
+[rvm_empty_gemset]:     https://rvm.io/gemsets/emptying/
+[rvm_default]:          https://rvm.io/rubies/default/
+[rvm_gemsets]:          https://rvm.io/gemsets/
+[rvm_install]:          https://rvm.io/rubies/installing/
+[rvm_remove]:           https://rvm.io/rubies/removing/
+[rvm_upgrading]:        https://rvm.io/rvm/upgrading/
 [script_resource]:      http://wiki.opscode.com/display/chef/Resources#Resources-Script
 [vagrant]:              http://vagrantup.com
 

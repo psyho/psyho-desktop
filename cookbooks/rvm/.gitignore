@@ -1,2 +1,7 @@
-.rake_test_cache
-pkgs/
+Gemfile.lock
+Berksfile.lock
+.vagrant
+.jamie/
+.jamie.local.yml
+.bundle/
+tmp/

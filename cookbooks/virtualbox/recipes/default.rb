@@ -66,7 +66,7 @@ when "ubuntu","debian"
     end
   end
 
-  package "virtualbox"
+  package "virtualbox-#{node['virtualbox']['version']}"
 
 end
 

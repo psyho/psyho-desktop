@@ -55,7 +55,7 @@ private
 def create_wrapper(bin)
   full_bin = "#{new_resource.prefix}_#{bin}"
   resource_name = "rvm_wrapper[#{full_bin}::#{@ruby_string}]"
-  script = ::File.join(::File.dirname(node['rvm']['root_path']), "bin", full_bin)
+  script = ::File.join(@rvm_env.config["rvm_path"], "bin", full_bin)
 
   if ::File.exists?(script)
     Chef::Log.debug("#{resource_name} already exists, so updating")
@@ -65,6 +65,7 @@ def create_wrapper(bin)
 
   if @rvm_env.wrapper @ruby_string, new_resource.prefix, bin
     Chef::Log.debug("Creation/Update of #{resource_name} was successful.")
+    new_resource.updated_by_last_action(true)
   else
     Chef::Log.warn("Failed to create/update #{resource_name}.")
   end

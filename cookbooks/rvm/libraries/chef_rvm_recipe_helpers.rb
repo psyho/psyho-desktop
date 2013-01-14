@@ -24,8 +24,15 @@ class Chef
     module RecipeHelpers
       def build_script_flags(version, branch)
         script_flags = ""
-        script_flags += " --version #{version}" if version
-        script_flags += " --branch #{branch}"   if branch
+        if version || (branch && branch != "none")
+          script_flags += " -s --"
+        end
+        if version
+          script_flags += " --version #{version}"
+        end
+        if branch && branch != "none"
+          script_flags += " --branch #{branch}"
+        end
         script_flags
       end
 
@@ -59,19 +66,20 @@ class Chef
         if opts[:user]
           user_dir    = opts[:rvm_prefix]
           exec_name   = "install user RVM for #{opts[:user]}"
-          exec_env    = { 'USER' => opts[:user], 'HOME' => user_dir }
+          exec_env    = { 'USER' => opts[:user], 'HOME' => user_dir, 'TERM' => 'dumb' }
         else
           user_dir    = nil
           exec_name   = "install system-wide RVM"
-          exec_env    = nil
+          exec_env    = { 'TERM' => 'dumb' }
         end
+
+        rvm_installed_check = rvm_wrap_cmd(
+            %{type rvm | cat | head -1 | grep -q '^rvm is a function$'}, user_dir
+        )
 
         i = execute exec_name do
           user    opts[:user] || "root"
-          command <<-CODE
-            bash -c "bash \
-              <( curl -Ls #{opts[:installer_url]} )#{opts[:script_flags]}"
-          CODE
+          command "curl -L #{opts[:installer_url]} | bash #{opts[:script_flags]}"
           environment(exec_env)
 
           # excute in compile phase if gem_package recipe is requested
@@ -81,8 +89,7 @@ class Chef
             action :run
           end
 
-          not_if  rvm_wrap_cmd(
-            %{type rvm | cat | head -1 | grep -q '^rvm is a function$'}, user_dir)
+          not_if  rvm_installed_check, :environment => exec_env
         end
         i.run_action(:run) if install_now
       end
@@ -102,9 +109,13 @@ class Chef
           exec_env    = nil
         end
 
+        upgrade_cmd = rvm_wrap_cmd(
+          %{rvm get #{opts[:upgrade_strategy]}}, user_dir
+        )
+
         u = execute exec_name do
           user      opts[:user] || "root"
-          command   rvm_wrap_cmd(%{rvm get #{opts[:upgrade_strategy]}}, user_dir)
+          command   upgrade_cmd
           environment(exec_env)
 
           # excute in compile phase if gem_package recipe is requested
@@ -114,7 +125,7 @@ class Chef
             action :run
           end
 
-          only_if   { %w{ latest head }.include?(opts[:upgrade_strategy]) }
+          not_if   { opts[:upgrade_strategy] == "none" }
         end
         u.run_action(:run) if install_now
       end
@@ -154,7 +165,16 @@ class Chef
       def install_rubies(opts = {})
         # install additional rubies
         opts[:rubies].each do |rubie|
-          rvm_ruby rubie do
+          if rubie.is_a?(Hash)
+            ruby = rubie.fetch("version")
+            ruby_patch = rubie.fetch("patch")
+          else
+            ruby = rubie
+            ruby_patch = nil
+          end
+
+          rvm_ruby ruby do
+            patch ruby_patch
             user  opts[:user]
           end
         end
@@ -195,7 +215,7 @@ class Chef
       private
 
       def mac_with_no_homebrew
-        node['platform'] == 'mac_os_x' &&
+        %w{ mac_os_x mac_os_x_server }.include?(node['platform']) &&
           Chef::Platform.find_provider_for_node(node, :package) !=
           Chef::Provider::Package::Homebrew
       end
